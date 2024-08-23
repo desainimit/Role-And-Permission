@@ -1,3 +1,3 @@
-const DB_NAME = "youtube_clone";
+const DB_NAME = "role-and-permission";
 
 export { DB_NAME };

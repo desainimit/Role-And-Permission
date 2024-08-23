@@ -2,14 +2,10 @@ import dotenv from "dotenv";
 
 import connectDB from "./db/dbConnect.js";
 import { app } from "./app.js";
-import { connectCloudinary } from "./utils/cloudinary.js";
 
 // Configuration
 
 dotenv.config();
-
-// configure Cloudinary
-connectCloudinary();
 
 connectDB()
   .then(() => {

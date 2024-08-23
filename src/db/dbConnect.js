@@ -16,21 +16,3 @@ const connectDB = async () => {
 };
 
 export default connectDB;
-
-/* 
-import mongoose from "mongoose";
-import { DB_NAME } from "./constants";
-// import dotenv from "dotenv";
-
-// dotenv.config();
-
-(async () => {
-  try {
-    await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`);
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
-  }
-})();
-
-*/
