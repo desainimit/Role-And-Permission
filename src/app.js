@@ -25,4 +25,16 @@ app.use(
 app.use(express.static("public"));
 app.use(cookieParser());
 
+// Routers imports
+import userRouter from "./routes/User/user.routes.js";
+import adminRouter from "./routes/Admin/admin.routes.js";
+
+// Routes Declaration
+
+// User Router
+app.use("/api/v1/users", userRouter);
+
+// Admin Router
+app.use("/api/v1/admin", adminRouter);
+
 export { app };

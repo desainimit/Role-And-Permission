@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { DB_NAME } from "../constants.js";
+import { ApiError } from "../utils/apiError.js";
 
 
 const connectDB = async () => {
@@ -11,7 +12,7 @@ const connectDB = async () => {
     console.log(`MongoDB connected: ${connectionInstance.connection.host}`);
   } catch (error) {
     console.error("MongoDB connection Failed:", error);
-    process.exit(1);
+    throw new ApiError(500, "MongoDB connection Failed");
   }
 };
 
