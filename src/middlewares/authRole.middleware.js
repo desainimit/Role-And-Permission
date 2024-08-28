@@ -61,7 +61,6 @@ const authRole = (role, permission) =>
     ]);
 
     const user = result[0];
-    console.log(user);
 
     if (user.role.name !== role) {
       throw new ApiError(403, "Forbidden request");

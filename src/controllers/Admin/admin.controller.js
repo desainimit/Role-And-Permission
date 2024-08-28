@@ -18,27 +18,6 @@ const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
   return { accessToken, refreshToken };
 });
 
-// const autoRegisterAdmin = asyncHandler(async () => {
-//   const ExistAdmin = await Admin.findOne({
-//     $or: [{ email: "admin@gmail.com" }, { username: "admin" }],
-//   });
-
-//   if (ExistAdmin) return;
-
-//   const adminUser = await Admin.create({
-//     fullName: "Admin",
-//     username: "admin",
-//     email: "admin@gmail.com",
-//     password: "admin@123",
-//   });
-
-//   if (!adminUser) {
-//     throw new ApiError(500, "Something went wrong while registering the admin");
-//   }
-
-//   console.log("Admin user created successfully");
-// });
-
 const login = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -104,10 +83,10 @@ const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find()
     .skip((page - 1) * limit)
     .limit(limit)
-    .select("-password -refreshToken");
+    .select("-password -refreshToken -__v");
 
   if (users.length === 0) {
-    return res.status(200).json(new ApiResponse(200, users, "No users found"));
+    return res.status(200).json(new ApiResponse(200, {}, "No users found"));
   }
 
   return res
