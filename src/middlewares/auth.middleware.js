@@ -1,5 +1,4 @@
 import asyncHandler from "express-async-handler";
-import { User } from "../models/User/user.model.js";
 import { ApiError } from "../utils/apiError.js";
 import jwt from "jsonwebtoken";
 
@@ -18,14 +17,7 @@ const verifyJwt = asyncHandler(async (req, res, next) => {
     if (!decoded) {
       throw new ApiError(401, "Invalid access token");
     }
-
-    const user = await User.findById(decoded?._id).select(
-      "-password -refreshToken"
-    );
-    if (!user) {
-      throw new ApiError(401, "Invalid access token");
-    }
-    req.user = user;
+    req.user = decoded?._id;
     next();
   } catch (error) {
     console.error(error);

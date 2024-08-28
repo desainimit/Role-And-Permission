@@ -29,11 +29,6 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
     },
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
-    },
     refreshToken: {
       type: String,
     },
@@ -73,7 +68,7 @@ userSchema.methods.generateAccessToken = function () {
 // Generate refresh token
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
-    {  
+    {
       _id: this._id,
     },
     process.env.REFRESH_TOKEN_SECRET,

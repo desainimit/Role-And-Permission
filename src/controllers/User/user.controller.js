@@ -1,8 +1,12 @@
 import asyncHandler from "express-async-handler";
-import { User } from "../../models/User/user.model.js";
+import { User } from "../../models/user.model.js";
 import { ApiError } from "../../utils/apiError.js";
 import { ApiResponse } from "../../utils/apiResponse.js";
 import { cookiesOptions } from "../../constants.js";
+import { removeAccessToken } from "../../helper/removeAccessToken.js";
+import { Role } from "../../models/role.model.js";
+import { UserRoles } from "../../models/userRoles.model.js";
+import { getDataById } from "../../helper/getDataById.js";
 
 const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
   const user = await User.findById(userId);
@@ -18,7 +22,6 @@ const generateAccessAndRefreshToken = asyncHandler(async (userId) => {
 
 const register = asyncHandler(async (req, res) => {
   const { fullName, username, email, password } = req.body;
-  console.log(req.body);
 
   if (!fullName || !username || !email || !password) {
     throw new ApiError(400, "All fields are required");
@@ -29,12 +32,27 @@ const register = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Username or email already exists");
   }
 
+  const userRoleId = await Role.findOne({ name: "user" });
+  if (!userRoleId) {
+    throw new ApiError(500, "Something went wrong while assigning user role");
+  }
+
   const user = await User.create({
     fullName,
     username,
     email,
     password,
   });
+
+  const userRole = await UserRoles.create({
+    user_id: user._id,
+    user_type: "user",
+    role_id: userRoleId,
+  });
+
+  if (!userRole) {
+    throw new ApiError(500, "Something went wrong while assigning user role");
+  }
 
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -57,11 +75,13 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Password is required");
   }
   const user = await User.findOne({ $or: [{ email }, { username }] });
+
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
   const isValidPassword = await user.isValidPassword(password);
+
   if (!isValidPassword) {
     throw new ApiError(401, "Invalid password");
   }
@@ -92,20 +112,7 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
-  const user = req.user;
-  const updatedUser = await User.findByIdAndUpdate(
-    user._id,
-    {
-      $unset: { refreshToken: 1 },
-    },
-    {
-      new: true,
-    }
-  );
-  if (!updatedUser) {
-    throw new ApiError(500, "Something went wrong while logging out the user");
-  }
-
+  await removeAccessToken(User, req.user);
   return res
     .status(200)
     .clearCookie("accessToken")
@@ -161,4 +168,9 @@ const generateRefreshToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { register, login, logout, generateRefreshToken };
+const userProfile = asyncHandler(async (req, res) => {
+  const user = await getDataById(User, req.user, "-password -refreshToken -__v");
+  return res.status(200).json(new ApiResponse(200, user, "User profile"));
+});
+
+export { register, login, logout, generateRefreshToken, userProfile };
